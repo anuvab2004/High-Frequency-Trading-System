@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 
 public class FinnhubDataService {
     private static final Logger LOGGER = Logger.getLogger(FinnhubDataService.class.getName());
-    private static final String API_KEY = "d5hk3hpr01qqequ2vaugd5hk3hpr01qqequ2vav0"; // Replace with your key
+    private static final String API_KEY = System.getenv("FINNHUB_API_KEY");
     private static final String BASE_URL = "https://finnhub.io/api/v1/quote";
 
     private final HttpClient httpClient;
@@ -28,7 +28,7 @@ public class FinnhubDataService {
         this.cache = new ConcurrentHashMap<>();
         this.lastFetchTime = new ConcurrentHashMap<>();
 
-        // Initialize with popular symbols
+     
         initializeSymbols();
     }
 
