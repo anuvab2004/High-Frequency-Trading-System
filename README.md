@@ -2,6 +2,9 @@
 
 A comprehensive high-frequency trading system built with Java, featuring real-time order matching, risk management, FIX protocol integration, and WebSocket-based market data distribution.
 
+![Real-time Order Book Dashboard](docs/dashboard_1.png)
+![Real-time Order Book Dashboard](docs/dashboard_2.png)
+
 ## **🎯 Overview**
 
 This system is a production-grade trading engine designed for high-performance order processing. It implements a complete matching engine with risk controls, multiple protocol support (FIX 4.4, custom TCP), and real-time market data distribution via WebSocket.
@@ -70,6 +73,10 @@ Benchmarked using **JMH (Java Microbenchmark Harness)** on standard hardware.
 | **Tick-to-Trade** | **\~1.12 µs** | Full cycle: Order In \-\> Risk \-\> Match \-\> Execution Report |
 | **Order Injection** | **\~0.42 µs** | Time to accept a resting limit order |
 | **Throughput** | **1M+ ops/sec** | Sustained message processing rate |
+
+![Latency Benchmarks](docs/benchmarks_1.png)
+![Latency Benchmarks](docs/benchmarks_2.png)
+![Latency Benchmarks](docs/benchmarks_3.png)
 
 ## **📦 Technology Stack**
 
@@ -169,18 +176,25 @@ java \-cp target/High\_Frequency\_Trading\_System-1.0-SNAPSHOT.jar org.example.t
 
 ## **📁 Project Structure**
 
-High Frequency Trading System/  
-├── src/main/java/org/example/  
-│   ├── EnhancedOrderBook.java       \# Core matching engine  
-│   ├── fix/                         \# FIX Gateway implementation  
-│   ├── risk/                        \# Risk management logic  
-│   ├── marketdata/                  \# Feed handlers (Finnhub, Sim)  
-│   ├── websocket/                   \# Real-time web server  
-│   └── test/                        \# JMH Benchmarks & Integration tests  
-├── src/main/resources/static/       \# Web Dashboard (JS/HTML)  
-├── fix-config.cfg                   \# FIX Configuration  
-└── pom.xml                          \# Maven dependencies
+## 📁 Project Structure
 
+```
+High Frequency Trading System/
+├── src/                            # Source code
+│   ├── main/java/org/example/      # Main application code
+│   │   ├── fix/                    # FIX protocol implementation
+│   │   ├── risk/                   # Risk management system
+│   │   ├── marketdata/             # Market data feed handlers
+│   │   ├── websocket/              # WebSocket server for dashboard
+│   │   └── server/                 # TCP server for low-latency clients
+│   └── test/java/                  # Unit and integration tests
+├── src/main/resources/             # Static resources
+│   └── static/                     # Web dashboard (HTML/JS/CSS)
+├── docs/                           # Visual evidence
+├── config/                         # Configuration files
+├── scripts/                        # Utility scripts
+└── target/                         # Build output (generated)
+```
 ## **🐛 Troubleshooting**
 
 **Port Conflicts:** If ports 8080 (TCP), 8081 (WS), or 9876 (FIX) are in use:
