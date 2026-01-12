@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!DOCTYPE Configure PUBLIC "-//Jetty//Configure//EN" "https://jetty.org/configure_10_0.dtd">
+
+<Configure>
+  <New id="threadPool" class="org.eclipse.jetty.util.thread.VirtualThreadPool">
+    <Arg type="int"><Property name="jetty.threadPool.maxThreads" default="200" /></Arg>
+    <Set name="name" property="jetty.threadPool.namePrefix" />
+    <Set name="tracking" property="jetty.threadPool.tracking" />
+    <Set name="detailedDump" property="jetty.threadPool.detailedDump" />
+  </New>
+
+  <Call class="org.slf4j.LoggerFactory" name="getLogger">
+    <Arg>org.eclipse.jetty</Arg>
+    <Call name="info">
+      <Arg>Virtual threads enabled. Using virtual threads for all tasks.</Arg>
+    </Call>
+  </Call>
+</Configure>

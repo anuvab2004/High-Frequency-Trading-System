@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>High Frequency Trading Dashboard</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div class="container">
+    <!-- Header -->
+    <header class="dashboard-header">
+        <div class="header-left">
+            <h1><i class="fas fa-chart-line"></i> High Frequency Trading Dashboard</h1>
+            <p class="subtitle">Real-time Market Data Feed</p>
+        </div>
+        <div class="header-right">
+            <div class="timestamp" id="currentTime">--:--:--</div>
+        </div>
+    </header>
+
+    <div class="dashboard-content">
+        <!-- Left Panel: Market Data -->
+        <div class="left-panel">
+            <!-- Connection Status Card -->
+            <div class="card connection-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-signal"></i> WebSocket Status</h2>
+                    <div class="status-indicator">
+                        <span class="status-dot" id="statusDot"></span>
+                        <span id="connectionStatus">Connecting...</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="connection-info">
+                        <div class="info-row">
+                            <span class="info-label">Connection ID:</span>
+                            <span class="info-value" id="connectionId">-</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Connected Since:</span>
+                            <span class="info-value" id="connectedSince">-</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Total Clients:</span>
+                            <span class="info-value" id="totalClients">-</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Message Rate:</span>
+                            <span class="info-value" id="messageRate">0/sec</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Latency:</span>
+                            <span class="info-value" id="latency">- ms</span>
+                        </div>
+                    </div>
+                    <div class="connection-controls">
+                        <button id="connectBtn" class="btn btn-connect">
+                            <i class="fas fa-plug"></i> Connect
+                        </button>
+                        <button id="disconnectBtn" class="btn btn-disconnect" disabled>
+                            <i class="fas fa-plug-circle-xmark"></i> Disconnect
+                        </button>
+                        <button id="reconnectBtn" class="btn btn-reconnect">
+                            <i class="fas fa-rotate"></i> Reconnect
+                        </button>
+                    </div>
+
+                    <!-- Performance Metrics Section -->
+                    <div class="metrics-section">
+                        <h3><i class="fas fa-tachometer-alt"></i> Performance Metrics</h3>
+                        <div class="metrics-grid">
+                            <div class="metric-item">
+                                <span class="metric-label">Active Connections:</span>
+                                <span class="metric-value" id="metricConnections">0</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Total Orders:</span>
+                                <span class="metric-value" id="metricTotalOrders">0</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Total Trades:</span>
+                                <span class="metric-value" id="metricTotalTrades">0</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Avg Latency:</span>
+                                <span class="metric-value" id="metricAvgLatency">0 ms</span>
+                            </div>
+                        </div>
+                        <div class="metrics-controls">
+                            <button id="getMetricsBtn" class="btn btn-small">
+                                <i class="fas fa-sync-alt"></i> Refresh Metrics
+                            </button>
+                            <span class="last-update" id="lastMetricsUpdate">Never updated</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Symbol Selection Card -->
+            <div class="card symbol-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-coins"></i> Symbol Selection</h2>
+                </div>
+                <div class="card-body">
+                    <div class="symbol-grid">
+                        <div class="symbol-option active" data-symbol="TEST">
+                            <span class="symbol-name">TEST</span>
+                            <span class="symbol-price" id="price-TEST">$100.00</span>
+                            <button class="symbol-remove" data-symbol="TEST" title="Remove symbol">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="symbol-option" data-symbol="AAPL">
+                            <span class="symbol-name">AAPL</span>
+                            <span class="symbol-price" id="price-AAPL">-</span>
+                            <button class="symbol-remove" data-symbol="AAPL" title="Remove symbol">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="symbol-option" data-symbol="GOOGL">
+                            <span class="symbol-name">GOOGL</span>
+                            <span class="symbol-price" id="price-GOOGL">-</span>
+                            <button class="symbol-remove" data-symbol="GOOGL" title="Remove symbol">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="symbol-option" data-symbol="MSFT">
+                            <span class="symbol-name">MSFT</span>
+                            <span class="symbol-price" id="price-MSFT">-</span>
+                            <button class="symbol-remove" data-symbol="MSFT" title="Remove symbol">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="symbol-option" data-symbol="AMZN">
+                            <span class="symbol-name">AMZN</span>
+                            <span class="symbol-price" id="price-AMZN">-</span>
+                            <button class="symbol-remove" data-symbol="AMZN" title="Remove symbol">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="symbol-option" data-symbol="TSLA">
+                            <span class="symbol-name">TSLA</span>
+                            <span class="symbol-price" id="price-TSLA">-</span>
+                            <button class="symbol-remove" data-symbol="TSLA" title="Remove symbol">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="search-symbol">
+                        <input type="text" id="symbolSearch" placeholder="Search symbol (e.g., BTC, ETH)">
+                        <button id="addSymbolBtn" class="btn btn-small">
+                            <i class="fas fa-plus"></i> Add
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Book Card -->
+            <div class="card orderbook-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-book"></i> Order Book</h2>
+                    <div class="card-actions">
+                        <button class="btn-icon" id="refreshOrderBook">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="orderbook">
+                        <div class="orderbook-header">
+                            <div class="orderbook-side">BIDS</div>
+                            <div class="orderbook-price">Price</div>
+                            <div class="orderbook-size">Size</div>
+                            <div class="orderbook-total">Total</div>
+                        </div>
+                        <div class="orderbook-rows" id="bidsList">
+                            <!-- Bids will be populated here -->
+                            <div class="orderbook-row bid-row">
+                                <div class="orderbook-side">-</div>
+                                <div class="orderbook-price">-</div>
+                                <div class="orderbook-size">-</div>
+                                <div class="orderbook-total">-</div>
+                            </div>
+                        </div>
+                        <div class="orderbook-spread">
+                            <div class="spread-value" id="currentSpread">Spread: -</div>
+                            <div class="mid-price" id="midPrice">Mid: -</div>
+                        </div>
+                        <div class="orderbook-rows" id="asksList">
+                            <!-- Asks will be populated here -->
+                            <div class="orderbook-row ask-row">
+                                <div class="orderbook-side">-</div>
+                                <div class="orderbook-price">-</div>
+                                <div class="orderbook-size">-</div>
+                                <div class="orderbook-total">-</div>
+                            </div>
+                        </div>
+                        <div class="orderbook-header">
+                            <div class="orderbook-side">ASKS</div>
+                            <div class="orderbook-price">Price</div>
+                            <div class="orderbook-size">Size</div>
+                            <div class="orderbook-total">Total</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel: Main Dashboard -->
+        <div class="right-panel">
+            <!-- Selected Symbol Card -->
+            <div class="card main-symbol-card">
+                <div class="card-header">
+                    <div class="symbol-title">
+                        <i class="fas fa-chart-line"></i>
+                        <h2 id="selectedSymbol">TEST</h2>
+                        <span class="symbol-change" id="priceChange">+0.00%</span>
+                    </div>
+                    <div class="timeframe-selector">
+                        <button class="timeframe-btn active" data-timeframe="1s">1s</button>
+                        <button class="timeframe-btn" data-timeframe="5s">5s</button>
+                        <button class="timeframe-btn" data-timeframe="30s">30s</button>
+                        <button class="timeframe-btn" data-timeframe="1m">1m</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="price-display">
+                        <div class="price-main">
+                            <div class="price-label">Current Price</div>
+                            <div class="price-value" id="currentPrice">$100.00</div>
+                        </div>
+                        <div class="price-details">
+                            <div class="price-detail">
+                                <div class="detail-label">Bid</div>
+                                <div class="detail-value bid-value" id="currentBid">$99.95</div>
+                            </div>
+                            <div class="price-detail">
+                                <div class="detail-label">Ask</div>
+                                <div class="detail-value ask-value" id="currentAsk">$100.05</div>
+                            </div>
+                            <div class="price-detail">
+                                <div class="detail-label">Spread</div>
+                                <div class="detail-value spread-value" id="detailedSpread">$0.10</div>
+                            </div>
+                            <div class="price-detail">
+                                <div class="detail-label">Volume</div>
+                                <div class="detail-value volume-value" id="currentVolume">1,000</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Price Chart -->
+                    <div class="chart-container">
+                        <canvas id="priceChart"></canvas>
+                    </div>
+
+                    <!-- Statistics Grid -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-arrow-trend-up"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-label">24h High</div>
+                                <div class="stat-value" id="dayHigh">$102.50</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-arrow-trend-down"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-label">24h Low</div>
+                                <div class="stat-value" id="dayLow">$98.75</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-bolt"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-label">Volatility</div>
+                                <div class="stat-value" id="volatility">2.5%</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-content">
+                                <div class="stat-label">Last Update</div>
+                                <div class="stat-value" id="lastUpdateTime">--:--:--</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Market Activity & Logs -->
+            <div class="bottom-panel">
+                <!-- Trade Log -->
+                <div class="card trade-log-card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-history"></i> Recent Trades</h2>
+                        <div class="card-actions">
+                            <button class="btn-icon" id="clearTrades">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="trade-log" id="tradeLog">
+                            <div class="trade-log-header">
+                                <div class="trade-time">Time</div>
+                                <div class="trade-side">Side</div>
+                                <div class="trade-price">Price</div>
+                                <div class="trade-size">Size</div>
+                                <div class="trade-value">Value</div>
+                            </div>
+                            <div class="trade-log-entries" id="tradeEntries">
+                                <!-- Trades will be populated here -->
+                                <div class="trade-log-entry">
+                                    <div class="trade-time">--:--:--</div>
+                                    <div class="trade-side">-</div>
+                                    <div class="trade-price">-</div>
+                                    <div class="trade-size">-</div>
+                                    <div class="trade-value">-</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Messages Panel -->
+                <div class="card messages-card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-comments"></i> System Messages</h2>
+                        <div class="message-count">
+                            <span id="messageCount">0</span> messages
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="messages-log" id="messagesLog">
+                            <!-- Messages will be displayed here -->
+                            <div class="message-entry">
+                                <span class="message-time">[--:--:--]</span>
+                                <span class="message-text">Waiting for connection...</span>
+                            </div>
+                        </div>
+                        <div class="message-input">
+                            <input type="text" id="messageInput" placeholder="Type command (help for options)">
+                            <button id="sendMessageBtn" class="btn btn-small">
+                                <i class="fas fa-paper-plane"></i> Send
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="dashboard-footer">
+        <div class="footer-left">
+            <div class="performance-metrics">
+                <span class="metric"><i class="fas fa-bolt"></i> Uptime: <span id="uptime">00:00:00</span></span>
+                <span class="metric"><i class="fas fa-database"></i> Total Messages: <span id="totalMessages">0</span></span>
+                <span class="metric"><i class="fas fa-network-wired"></i> Data Rate: <span id="dataRate">0 KB/s</span></span>
+            </div>
+        </div>
+        <div class="footer-right">
+            <div class="system-status">
+                    <span class="status-badge" id="systemStatus">
+                        <i class="fas fa-circle"></i> System Operational
+                    </span>
+            </div>
+        </div>
+    </footer>
+</div>
+
+<script src="dashboard.js"></script>
+</body>
+</html>
